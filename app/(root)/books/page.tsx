@@ -1,8 +1,27 @@
-export default function Page() {
+import type { Metadata } from "next";
+
+import { AllBooks } from "./_components/AllBooks";
+import { PageTitle } from "@/components/shared/page-title";
+
+export const metadata: Metadata = {
+  title: "BookNook | All Books",
+  description:
+    "Browse every book on the BookNook shelves. Search by title or author and follow a coloured spine to your next read.",
+};
+
+export default async function BooksPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const initialCategory =
+    typeof params.category === "string" ? params.category : undefined;
+
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-semibold">All Books</h1>
-      <p className="mt-2 text-muted-foreground">This page is coming together.</p>
-    </main>
+    <>
+      <PageTitle title="All Books" />
+      <AllBooks initialCategory={initialCategory} />
+    </>
   );
 }
