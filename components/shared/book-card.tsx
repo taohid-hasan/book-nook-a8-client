@@ -1,3 +1,5 @@
-export function BookCard() {
-  return <div className="p-4">Book card</div>;
-}
+/**
+ * Backwards-compatible import path. The canonical card lives in
+ * `components/shared/BookCard.tsx`.
+ */
+export { BookCard } from "@/components/shared/BookCard";

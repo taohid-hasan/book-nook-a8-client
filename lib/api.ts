@@ -116,6 +116,7 @@ function buildQuery(params: Record<string, string | number | boolean | undefined
 export interface GetBooksParams {
   category?: string;
   search?: string;
+  sort?: string;
   limit?: number;
   mine?: boolean;
 }
@@ -124,6 +125,7 @@ export async function getBooks(params: GetBooksParams = {}): Promise<Book[]> {
   const query = buildQuery({
     category: params.category,
     search: params.search,
+    sort: params.sort,
     limit: params.limit,
     mine: params.mine ? "true" : undefined,
   });

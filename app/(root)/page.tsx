@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { HeroSlider } from "@/components/home/HeroSlider";
-import { FeaturedBooks } from "@/components/home/featured-books";
+import { NewArrivals } from "@/components/home/NewArrivals";
 import { CategorySection } from "@/components/home/category-section";
 import { HowItWorks } from "@/components/home/how-it-works";
 import { ReadingRoomCta } from "@/components/home/reading-room-cta";
@@ -18,7 +18,7 @@ export default function HomePage() {
     <>
       <PageTitle title="Home" />
       <HeroSlider />
-      <FeaturedBooks />
+      <NewArrivals />
       <CategorySection />
       <HowItWorks />
       <ReadingRoomCta />
