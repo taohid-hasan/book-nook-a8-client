@@ -1,8 +1,26 @@
-export default function Page() {
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import { PageLoader } from "@/components/shared/loading";
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
+import { BookDetail } from "./_components/book-detail";
+
+export const metadata: Metadata = {
+  title: "BookNook | Book Details",
+  description: "Borrow a book from the BookNook shared library shelf.",
+};
+
+export default async function BookDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-semibold">Book Details</h1>
-      <p className="mt-2 text-muted-foreground">This page is coming together.</p>
-    </main>
+    <Suspense fallback={<PageLoader label="Checking your library card…" />}>
+      <ProtectedRoute>
+        <BookDetail bookId={id} />
+      </ProtectedRoute>
+    </Suspense>
   );
 }

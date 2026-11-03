@@ -33,7 +33,7 @@ export default function NotFound() {
           404 · shelf not found
         </p>
         <h1 className="mt-3 font-heading text-4xl font-semibold text-balance sm:text-5xl">
-          This page slipped between the shelves
+          This page wandered off the shelf
         </h1>
         <span className="bookmark-ribbon mt-5" aria-hidden />
         <p className="mt-5 max-w-xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">

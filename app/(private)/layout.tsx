@@ -4,7 +4,7 @@ import { Footer } from "@/components/shared/Footer";
 import { Navbar } from "@/components/shared/Navbar";
 import { NavbarFallback } from "@/components/shared/NavbarFallback";
 import { PageLoader } from "@/components/shared/loading";
-import { RequireAuth } from "@/components/shared/require-auth";
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
 
 export default function PrivateLayout({
   children,
@@ -13,7 +13,7 @@ export default function PrivateLayout({
 }) {
   return (
     <Suspense fallback={<PageLoader label="Checking your library card…" />}>
-      <RequireAuth>
+      <ProtectedRoute>
         <Suspense fallback={<NavbarFallback />}>
           <Navbar />
         </Suspense>
@@ -23,7 +23,7 @@ export default function PrivateLayout({
           </div>
         </main>
         <Footer />
-      </RequireAuth>
+      </ProtectedRoute>
     </Suspense>
   );
 }
