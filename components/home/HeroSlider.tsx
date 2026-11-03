@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { ArrowRightIcon, SparklesIcon } from "lucide-react";
 import { Autoplay, EffectFade, Pagination } from "swiper/modules";
@@ -291,90 +292,115 @@ const artByKey = {
   book: OpenBookArt,
 } as const;
 
+const emptySubscribe = () => () => {};
+
+/** False during SSR and hydration, true once the page is interactive. */
+function useHydrated() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+}
+
 export function HeroSlider() {
+  // Swiper instantiates itself during render, and its modules read the clock,
+  // which makes prerendering bail out to a loading fallback. Render the first
+  // slide as static markup on the server, then swap in the carousel once the
+  // page is hydrated.
+  const hydrated = useHydrated();
+
   return (
     <section
       aria-label="Featured stories from the BookNook shelves"
       className="relative overflow-hidden bg-[#17110D]"
     >
-      <Swiper
-        modules={[Autoplay, EffectFade, Pagination]}
-        effect="fade"
-        fadeEffect={{ crossFade: true }}
-        speed={900}
-        loop
-        grabCursor
-        autoplay={{ delay: 6500, disableOnInteraction: false }}
-        pagination={{ clickable: true }}
-        className="hero-swiper"
-      >
-        {slides.map((slide) => {
-          const Art = artByKey[slide.art];
-
-          return (
+      {hydrated ? (
+        <Swiper
+          modules={[Autoplay, EffectFade, Pagination]}
+          effect="fade"
+          fadeEffect={{ crossFade: true }}
+          speed={900}
+          loop
+          grabCursor
+          autoplay={{ delay: 6500, disableOnInteraction: false }}
+          pagination={{ clickable: true }}
+          className="hero-swiper"
+        >
+          {slides.map((slide) => (
             <SwiperSlide key={slide.title}>
-              <div
-                className="relative flex h-full items-center overflow-hidden"
-                style={{ backgroundImage: slide.gradient }}
-              >
-                <div
-                  className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(227,154,85,0.18),transparent_55%)]"
-                  aria-hidden
-                />
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-[0.14] [background-image:radial-gradient(circle_at_1px_1px,#FBF5E9_1px,transparent_0)] [background-size:24px_24px]"
-                  aria-hidden
-                />
-
-                <div className="relative mx-auto grid w-full max-w-7xl items-center gap-8 px-4 pt-14 pb-20 sm:px-6 sm:pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:px-8">
-                  <div className="max-w-xl text-[#FBF5E9]">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-[#FBF5E9]/20 bg-[#FBF5E9]/10 px-3.5 py-1.5 text-[0.68rem] font-semibold tracking-[0.16em] uppercase backdrop-blur">
-                      <SparklesIcon className="size-3.5 text-[#E39A55]" aria-hidden />
-                      {slide.eyebrow}
-                    </span>
-
-                    <h1 className="mt-5 font-heading text-4xl leading-[1.06] font-semibold text-balance sm:text-5xl lg:text-[3.4rem]">
-                      {slide.title}
-                    </h1>
-
-                    <p className="mt-5 max-w-lg text-pretty text-sm leading-relaxed text-[#FBF5E9]/75 sm:text-base">
-                      {slide.body}
-                    </p>
-
-                    <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                      <Link
-                        href="/books"
-                        className={cn(
-                          buttonVariants({ size: "lg" }),
-                          "group bg-[#E39A55] text-[#2B1D14] hover:bg-[#F0AE6F]",
-                        )}
-                      >
-                        Browse Books
-                        <ArrowRightIcon
-                          className="transition-transform duration-300 group-hover:translate-x-1"
-                          aria-hidden
-                        />
-                      </Link>
-                      <Link
-                        href={slide.art === "lamp" ? "/add-book" : "/register"}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[#FBF5E9]/75 underline-offset-4 transition-colors hover:text-[#FBF5E9] hover:underline"
-                      >
-                        {slide.art === "lamp"
-                          ? "Share a book instead"
-                          : "Get a library card"}
-                      </Link>
-                    </div>
-                  </div>
-
-                  <div className="relative mx-auto hidden w-full max-w-md lg:block lg:max-w-none">
-                    <Art />
-                  </div>
-                </div>
-              </div>
+              <HeroSlide slide={slide} />
             </SwiperSlide>
-          );
-        })}
-      </Swiper>
+          ))}
+        </Swiper>
+      ) : (
+        <div className="h-[35rem] sm:h-[34rem] lg:h-[36rem]">
+          <HeroSlide slide={slides[0]} />
+        </div>
+      )}
     </section>
+  );
+}
+
+function HeroSlide({ slide }: { slide: Slide }) {
+  const Art = artByKey[slide.art];
+
+  return (
+    <div
+      className="relative flex h-full items-center overflow-hidden"
+      style={{ backgroundImage: slide.gradient }}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(227,154,85,0.18),transparent_55%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.14] [background-image:radial-gradient(circle_at_1px_1px,#FBF5E9_1px,transparent_0)] [background-size:24px_24px]"
+        aria-hidden
+      />
+
+      <div className="relative mx-auto grid w-full max-w-7xl items-center gap-8 px-4 pt-14 pb-20 sm:px-6 sm:pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:px-8">
+        <div className="max-w-xl text-[#FBF5E9]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#FBF5E9]/20 bg-[#FBF5E9]/10 px-3.5 py-1.5 text-[0.68rem] font-semibold tracking-[0.16em] uppercase backdrop-blur">
+            <SparklesIcon className="size-3.5 text-[#E39A55]" aria-hidden />
+            {slide.eyebrow}
+          </span>
+
+          <h1 className="mt-5 font-heading text-4xl leading-[1.06] font-semibold text-balance sm:text-5xl lg:text-[3.4rem]">
+            {slide.title}
+          </h1>
+
+          <p className="mt-5 max-w-lg text-pretty text-sm leading-relaxed text-[#FBF5E9]/75 sm:text-base">
+            {slide.body}
+          </p>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              href="/books"
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "group bg-[#E39A55] text-[#2B1D14] hover:bg-[#F0AE6F]",
+              )}
+            >
+              Browse Books
+              <ArrowRightIcon
+                className="transition-transform duration-300 group-hover:translate-x-1"
+                aria-hidden
+              />
+            </Link>
+            <Link
+              href={slide.art === "lamp" ? "/add-book" : "/register"}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[#FBF5E9]/75 underline-offset-4 transition-colors hover:text-[#FBF5E9] hover:underline"
+            >
+              {slide.art === "lamp" ? "Share a book instead" : "Get a library card"}
+            </Link>
+          </div>
+        </div>
+
+        <div className="relative mx-auto hidden w-full max-w-md lg:block lg:max-w-none">
+          <Art />
+        </div>
+      </div>
+    </div>
   );
 }
