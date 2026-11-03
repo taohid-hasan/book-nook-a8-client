@@ -1,8 +1,19 @@
-export default function Page() {
+import type { Metadata } from "next";
+
+import { RegisterForm } from "../_components/RegisterForm";
+import { PageTitle } from "@/components/shared/page-title";
+
+export const metadata: Metadata = {
+  title: "BookNook | Register",
+  description:
+    "Create a BookNook library card. No email verification, just a name, an email, and a password.",
+};
+
+export default function RegisterPage() {
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-semibold">Register</h1>
-      <p className="mt-2 text-muted-foreground">This page is coming together.</p>
-    </main>
+    <>
+      <PageTitle title="Register" />
+      <RegisterForm />
+    </>
   );
 }
