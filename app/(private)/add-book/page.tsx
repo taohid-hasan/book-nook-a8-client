@@ -1,8 +1,19 @@
-export default function Page() {
+import type { Metadata } from "next";
+
+import { AddBookForm } from "./_components/AddBookForm";
+import { PageTitle } from "@/components/shared/page-title";
+
+export const metadata: Metadata = {
+  title: "BookNook | Add Book",
+  description:
+    "Add a book to the shared BookNook shelf with a cover, description, and copy count.",
+};
+
+export default function AddBookPage() {
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-semibold">Add a Book</h1>
-      <p className="mt-2 text-muted-foreground">This page is coming together.</p>
-    </main>
+    <>
+      <PageTitle title="Add Book" />
+      <AddBookForm />
+    </>
   );
 }
