@@ -345,3 +345,43 @@ body::before {
   background: var(--accent);
   opacity: 1;
 }
+
+/* Home hero carousel */
+.hero-swiper {
+  height: 35rem;
+}
+
+.hero-swiper .swiper-slide {
+  height: 100%;
+}
+
+.hero-swiper .swiper-pagination {
+  bottom: 1.5rem;
+}
+
+.hero-swiper .swiper-pagination-bullet {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #fbf5e9;
+  opacity: 0.4;
+  transition: all 200ms ease;
+}
+
+.hero-swiper .swiper-pagination-bullet-active {
+  width: 1.6rem;
+  border-radius: 9999px;
+  background: #e39a55;
+  opacity: 1;
+}
+
+@media (min-width: 640px) {
+  .hero-swiper {
+    height: 34rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-swiper {
+    height: 36rem;
+  }
+}
