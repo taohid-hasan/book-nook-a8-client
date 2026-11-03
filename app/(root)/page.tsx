@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 
 import { HeroSlider } from "@/components/home/HeroSlider";
+import { HowBorrowingWorks } from "@/components/home/HowBorrowingWorks";
 import { NewArrivals } from "@/components/home/NewArrivals";
-import { CategorySection } from "@/components/home/category-section";
-import { HowItWorks } from "@/components/home/how-it-works";
-import { ReadingRoomCta } from "@/components/home/reading-room-cta";
+import { TopCategories } from "@/components/home/TopCategories";
 import { PageTitle } from "@/components/shared/page-title";
 
 export const metadata: Metadata = {
@@ -19,9 +18,8 @@ export default function HomePage() {
       <PageTitle title="Home" />
       <HeroSlider />
       <NewArrivals />
-      <CategorySection />
-      <HowItWorks />
-      <ReadingRoomCta />
+      <HowBorrowingWorks />
+      <TopCategories />
     </>
   );
 }
