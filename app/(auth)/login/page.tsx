@@ -1,8 +1,29 @@
-export default function Page() {
+import type { Metadata } from "next";
+
+import { LoginForm } from "../_components/LoginForm";
+import { safeRedirect } from "../_components/auth-utils";
+import { PageTitle } from "@/components/shared/page-title";
+
+export const metadata: Metadata = {
+  title: "BookNook | Login",
+  description:
+    "Sign in to your BookNook library card to add books, borrow books, and return them.",
+};
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const redirect = safeRedirect(
+    typeof params.redirect === "string" ? params.redirect : undefined,
+  );
+
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-semibold">Login</h1>
-      <p className="mt-2 text-muted-foreground">This page is coming together.</p>
-    </main>
+    <>
+      <PageTitle title="Login" />
+      <LoginForm redirect={redirect} />
+    </>
   );
 }
