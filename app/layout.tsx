@@ -5,8 +5,8 @@ import "./globals.css";
 
 import { Providers } from "@/components/providers";
 import { Footer } from "@/components/shared/footer";
-import { Navbar } from "@/components/shared/navbar";
-import { NavbarFallback } from "@/components/shared/navbar-fallback";
+import { Navbar } from "@/components/shared/Navbar";
+import { NavbarFallback } from "@/components/shared/NavbarFallback";
 
 const inter = Inter({
   subsets: ["latin"],

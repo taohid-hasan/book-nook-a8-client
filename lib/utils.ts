@@ -55,6 +55,12 @@ export function firstName(name: string | null | undefined): string {
   return name?.trim().split(/\s+/)[0] || "reader";
 }
 
+/** True when the current path matches a nav link (or one of its children). */
+export function isActivePath(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export const PASSWORD_RULE_MESSAGE =
   "Password must be at least 6 characters and include one uppercase and one lowercase letter.";
 
