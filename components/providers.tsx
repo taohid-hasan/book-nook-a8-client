@@ -1,5 +1,30 @@
 "use client";
 
+import { ThemeProvider } from "next-themes";
+
+import { Toaster } from "@/components/ui/sonner";
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+      <Toaster
+        position="top-center"
+        closeButton
+        richColors
+        toastOptions={{
+          classNames: {
+            toast: "font-sans",
+            title: "font-semibold",
+            description: "text-sm",
+          },
+        }}
+      />
+    </ThemeProvider>
+  );
 }
