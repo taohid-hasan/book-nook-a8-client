@@ -1,12 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Suspense } from "react";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 
 import { Providers } from "@/components/providers";
-import { Footer } from "@/components/shared/footer";
-import { Navbar } from "@/components/shared/Navbar";
-import { NavbarFallback } from "@/components/shared/NavbarFallback";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,13 +45,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col">
-        <Providers>
-          <Suspense fallback={<NavbarFallback />}>
-            <Navbar />
-          </Suspense>
-          <main className="flex flex-1 flex-col">{children}</main>
-          <Footer />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
