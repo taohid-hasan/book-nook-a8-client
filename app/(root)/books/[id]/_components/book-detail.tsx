@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { BorrowDialog } from "./borrow-dialog";
+import { BorrowModal } from "./BorrowModal";
 import { BookCard } from "@/components/shared/BookCard";
 import { DueStamp } from "@/components/shared/due-stamp";
 import { ErrorState } from "@/components/shared/empty-state";
@@ -446,7 +446,7 @@ export function BookDetail({ bookId }: BookDetailProps) {
       </div>
 
       {session?.user ? (
-        <BorrowDialog
+        <BorrowModal
           book={book}
           borrowerName={session.user.name}
           borrowerEmail={session.user.email}

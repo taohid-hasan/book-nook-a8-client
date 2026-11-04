@@ -13,12 +13,12 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { borrowBook } from "@/lib/api";
-import { formatDate, formatLongDate } from "@/lib/utils";
+import { ApiError, borrowBook } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 import type { Book } from "@/types/book";
 import type { Borrow } from "@/types/borrow";
 
-interface BorrowDialogProps {
+interface BorrowModalProps {
   book: Book;
   borrowerName: string;
   borrowerEmail: string;
@@ -27,14 +27,14 @@ interface BorrowDialogProps {
   onBorrowed: (borrow: Borrow) => void;
 }
 
-export function BorrowDialog({
+export function BorrowModal({
   book,
   borrowerName,
   borrowerEmail,
   open,
   onOpenChange,
   onBorrowed,
-}: BorrowDialogProps) {
+}: BorrowModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +45,7 @@ export function BorrowDialog({
   async function handleBorrow() {
     setSubmitting(true);
     setError(null);
+
     try {
       const borrow = await borrowBook(book._id);
       toast.success("Book borrowed", {
@@ -53,12 +54,22 @@ export function BorrowDialog({
       onBorrowed(borrow);
       onOpenChange(false);
     } catch (err) {
+      const status = err instanceof ApiError ? err.status : undefined;
       const message =
-        err instanceof Error
-          ? err.message
-          : "The book could not be borrowed right now.";
+        status === 409
+          ? "You have already borrowed this book"
+          : status === 400
+            ? "Not Available"
+            : err instanceof Error
+              ? err.message
+              : "The book could not be borrowed right now.";
+
       setError(message);
-      toast.error("Borrowing didn't go through", { description: message });
+      if (status === 409 || status === 400) {
+        toast.error(message);
+      } else {
+        toast.error("Borrowing didn't go through", { description: message });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -74,21 +85,21 @@ export function BorrowDialog({
         }
       }}
     >
-      <DialogContent className="checkout-slip max-h-[92vh] gap-0 overflow-y-auto border-[#e6d9c3] bg-[#fffdf7] p-0 text-[#2b1d14] sm:max-w-lg dark:border-[#3a2c21] dark:bg-[#241b14] dark:text-[#f3e9d8]">
-        <div className="border-b-2 border-current/20 px-6 pt-6 pb-4">
+      <DialogContent className="checkout-slip max-h-[92vh] gap-0 overflow-y-auto rounded-2xl border border-dashed border-current/30 bg-[#fffdf7] p-0 text-[#2b1d14] sm:max-w-lg dark:bg-[#241b14] dark:text-[#f3e9d8]">
+        <div className="border-b-2 border-dashed border-current/25 px-6 pt-6 pb-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[0.55rem] font-bold tracking-[0.26em] uppercase opacity-55">
+              <p className="font-mono text-[0.55rem] font-bold tracking-[0.26em] uppercase opacity-55">
                 BookNook Public Library
               </p>
               <DialogTitle className="mt-1 font-heading text-2xl leading-none font-semibold">
                 Library checkout slip
               </DialogTitle>
-              <DialogDescription className="mt-1 text-xs opacity-60">
+              <DialogDescription className="mt-1 font-mono text-xs opacity-60">
                 Slip no. BK-{book._id.slice(-5).toUpperCase()} · one week loan
               </DialogDescription>
             </div>
-            <span className="flex size-11 items-center justify-center rounded-full border-2 border-current/25">
+            <span className="flex size-11 items-center justify-center rounded-full border-2 border-dashed border-current/25">
               <CalendarCheckIcon className="size-5 opacity-70" aria-hidden />
             </span>
           </div>
@@ -96,7 +107,7 @@ export function BorrowDialog({
 
         <div className="px-6 py-5">
           <div className="flex gap-4">
-            <div className="w-20 shrink-0 overflow-hidden rounded-lg border border-current/10">
+            <div className="w-20 shrink-0 overflow-hidden rounded-lg border border-dashed border-current/20">
               {book.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -106,7 +117,7 @@ export function BorrowDialog({
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="flex aspect-[3/4] items-center justify-center bg-current/5 text-[0.55rem] opacity-60">
+                <div className="flex aspect-[3/4] items-center justify-center bg-current/5 font-mono text-[0.55rem] opacity-60">
                   No cover
                 </div>
               )}
@@ -116,7 +127,7 @@ export function BorrowDialog({
                 {book.title}
               </p>
               <p className="mt-1 text-sm opacity-65">by {book.author}</p>
-              <p className="mt-2 inline-flex rounded-full border border-current/25 px-2 py-0.5 text-[0.6rem] font-semibold tracking-wide uppercase opacity-70">
+              <p className="mt-2 inline-flex rounded-full border border-current/25 px-2 py-0.5 font-mono text-[0.6rem] font-semibold tracking-wide uppercase opacity-70">
                 {book.category}
               </p>
             </div>
@@ -124,33 +135,29 @@ export function BorrowDialog({
 
           <dl className="mt-6 space-y-3 text-sm">
             <div className="checkout-rule flex items-baseline justify-between gap-4 pb-2">
-              <dt className="text-[0.6rem] font-semibold tracking-[0.18em] uppercase opacity-55">
-                Borrower
+              <dt className="font-mono text-[0.6rem] font-semibold tracking-[0.18em] uppercase opacity-55">
+                Name
               </dt>
               <dd className="max-w-[60%] truncate text-right font-medium">
                 {borrowerName}
               </dd>
             </div>
             <div className="checkout-rule flex items-baseline justify-between gap-4 pb-2">
-              <dt className="text-[0.6rem] font-semibold tracking-[0.18em] uppercase opacity-55">
-                Library card
+              <dt className="font-mono text-[0.6rem] font-semibold tracking-[0.18em] uppercase opacity-55">
+                Email
               </dt>
-              <dd className="max-w-[60%] truncate text-right text-xs">{borrowerEmail}</dd>
+              <dd className="max-w-[60%] truncate text-right text-xs">
+                {borrowerEmail}
+              </dd>
             </div>
             <div className="checkout-rule flex items-baseline justify-between gap-4 pb-2">
-              <dt className="text-[0.6rem] font-semibold tracking-[0.18em] uppercase opacity-55">
-                Date borrowed
+              <dt className="font-mono text-[0.6rem] font-semibold tracking-[0.18em] uppercase opacity-55">
+                Return by
               </dt>
-              <dd className="text-right font-medium">{formatLongDate(today)}</dd>
-            </div>
-            <div className="checkout-rule flex items-baseline justify-between gap-4 pb-2">
-              <dt className="text-[0.6rem] font-semibold tracking-[0.18em] uppercase opacity-55">
-                Due back
-              </dt>
-              <dd className="text-right font-semibold">{formatLongDate(due)}</dd>
+              <dd className="text-right font-semibold">{formatDate(due)}</dd>
             </div>
             <div className="flex items-baseline justify-between gap-4">
-              <dt className="text-[0.6rem] font-semibold tracking-[0.18em] uppercase opacity-55">
+              <dt className="font-mono text-[0.6rem] font-semibold tracking-[0.18em] uppercase opacity-55">
                 Copies on shelf
               </dt>
               <dd className="text-right font-medium">
@@ -160,7 +167,7 @@ export function BorrowDialog({
           </dl>
 
           <div className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-dashed border-current/25 p-3">
-            <p className="max-w-[70%] text-[0.7rem] leading-relaxed opacity-65">
+            <p className="max-w-[70%] font-mono text-[0.7rem] leading-relaxed opacity-65">
               Seven days, no late fees. Bring it back from My Borrows when you are
               finished so the next reader can find it.
             </p>
@@ -168,13 +175,16 @@ export function BorrowDialog({
           </div>
 
           {error ? (
-            <p className="mt-4 text-xs font-medium text-[#b4472e] dark:text-[#e07a5f]" role="alert">
+            <p
+              className="mt-4 text-xs font-medium text-[#b4472e] dark:text-[#e07a5f]"
+              role="alert"
+            >
               {error}
             </p>
           ) : null}
         </div>
 
-        <DialogFooter className="m-0 rounded-none border-t border-current/20 bg-current/5 px-6 py-4">
+        <DialogFooter className="m-0 rounded-none border-t border-dashed border-current/25 bg-current/5 px-6 py-4">
           <Button
             type="button"
             variant="outline"
@@ -195,7 +205,7 @@ export function BorrowDialog({
                 Stamping the slip…
               </>
             ) : (
-              "Borrow this book"
+              "Confirm Borrow"
             )}
           </Button>
         </DialogFooter>
