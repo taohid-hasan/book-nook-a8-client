@@ -9,22 +9,10 @@ import {
   PencilIcon,
   Trash2Icon,
 } from "lucide-react";
-import { toast } from "sonner";
-
+import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { EditBookModal } from "./EditBookModal";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { PageLoader } from "@/components/shared/loading";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -35,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { deleteBook, getBooks } from "@/lib/api";
+import { getBooks } from "@/lib/api";
 import { cn, formatDate } from "@/lib/utils";
 import { getCategoryMeta, type Book } from "@/types/book";
 
@@ -45,7 +33,6 @@ export function MyBooksView() {
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Book | null>(null);
   const [deleting, setDeleting] = useState<Book | null>(null);
-  const [deleteBusy, setDeleteBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -70,26 +57,6 @@ export function MyBooksView() {
     setBooks((current) =>
       current.map((book) => (book._id === updated._id ? updated : book)),
     );
-  }
-
-  async function handleDelete() {
-    if (!deleting) return;
-    setDeleteBusy(true);
-    try {
-      await deleteBook(deleting._id);
-      toast.success("Book removed from the shelf", {
-        description: `"${deleting.title}" and its borrow records are gone.`,
-      });
-      setDeleting(null);
-      await load();
-    } catch (err) {
-      toast.error("The book couldn't be removed", {
-        description:
-          err instanceof Error ? err.message : "Please try again in a moment.",
-      });
-    } finally {
-      setDeleteBusy(false);
-    }
   }
 
   if (loading) {
@@ -332,41 +299,15 @@ export function MyBooksView() {
         onSaved={handleSaved}
       />
 
-      <AlertDialog
-        open={Boolean(deleting)}
+      <DeleteConfirmModal
+        book={deleting}
         onOpenChange={(open) => {
-          if (!open && !deleteBusy) setDeleting(null);
+          if (!open) setDeleting(null);
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogMedia className="bg-destructive/10 text-destructive">
-              <Trash2Icon aria-hidden />
-            </AlertDialogMedia>
-            <AlertDialogTitle className="font-heading text-lg">
-              Remove this book from BookNook?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleting
-                ? `"${deleting.title}" and every borrow record attached to it will be permanently removed.`
-                : "This book will be permanently removed from BookNook."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteBusy}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(event) => {
-                event.preventDefault();
-                void handleDelete();
-              }}
-              disabled={deleteBusy}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              {deleteBusy ? "Deleting…" : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onDeleted={(id) =>
+          setBooks((current) => current.filter((book) => book._id !== id))
+        }
+      />
     </div>
   );
 }
