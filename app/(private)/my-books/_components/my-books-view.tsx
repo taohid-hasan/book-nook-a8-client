@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  BookOpenIcon,
   BookPlusIcon,
   LibraryBigIcon,
   PencilIcon,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { EditBookModal } from "./EditBookModal";
+import { BookCover } from "@/components/shared/book-cover";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { PageLoader } from "@/components/shared/loading";
 import { Badge } from "@/components/ui/badge";
@@ -114,19 +114,13 @@ export function MyBooksView() {
                 <TableRow key={book._id}>
                   <TableCell className="pl-4">
                     <div className="h-16 w-12 overflow-hidden rounded-md border border-border bg-secondary">
-                      {book.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={book.image}
-                          alt={`Cover of ${book.title}`}
-                          className="h-full w-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                          <BookOpenIcon className="size-5" aria-hidden />
-                        </div>
-                      )}
+                      <BookCover
+                        src={book.image}
+                        title={book.title}
+                        className="h-full w-full"
+                        titleClassName="line-clamp-2 text-[0.5rem] leading-tight"
+                        iconClassName="size-4"
+                      />
                     </div>
                   </TableCell>
                   <TableCell>
@@ -202,19 +196,13 @@ export function MyBooksView() {
             >
               <div className="flex gap-4">
                 <div className="h-24 w-16 shrink-0 overflow-hidden rounded-lg border border-border bg-secondary">
-                  {book.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={book.image}
-                      alt={`Cover of ${book.title}`}
-                      className="h-full w-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                      <BookOpenIcon className="size-5" aria-hidden />
-                    </div>
-                  )}
+                  <BookCover
+                    src={book.image}
+                    title={book.title}
+                    className="h-full w-full"
+                    titleClassName="text-[0.6rem] leading-tight"
+                    iconClassName="size-4"
+                  />
                 </div>
 
                 <div className="min-w-0 flex-1">

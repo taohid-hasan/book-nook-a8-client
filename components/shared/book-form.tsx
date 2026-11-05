@@ -2,7 +2,6 @@
 
 import { useId, useRef, useState } from "react";
 import {
-  BookOpenIcon,
   BookPlusIcon,
   ChevronDownIcon,
   LinkIcon,
@@ -10,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { BookCover } from "@/components/shared/book-cover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +32,19 @@ interface BookFormProps {
 }
 
 type FieldErrors = Partial<Record<keyof BookInput, string>>;
+
+const HTTP_URL_PATTERN = /^https?:\/\/\S+$/i;
+const SCHEME_ERROR = "Start the cover link with http:// or https://.";
+const DIRECT_IMAGE_ERROR =
+  "This link is not a direct image. Paste an image link (right-click the image, Copy image address) or use Upload cover.";
+
+type ImageStatus = "empty" | "loading" | "valid" | "invalid";
+
+function initialImageStatus(image: string | undefined): ImageStatus {
+  const value = image?.trim() ?? "";
+  if (!value) return "empty";
+  return HTTP_URL_PATTERN.test(value) ? "loading" : "invalid";
+}
 
 const emptyValues: BookInput = {
   title: "",
@@ -60,10 +73,31 @@ export function BookForm({
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [imageStatus, setImageStatus] = useState<ImageStatus>(() =>
+    initialImageStatus(initialValues?.image),
+  );
+  const [imageError, setImageError] = useState<string | null>(() => {
+    const image = initialValues?.image?.trim() ?? "";
+    return image && !HTTP_URL_PATTERN.test(image) ? SCHEME_ERROR : null;
+  });
 
   function update<K extends keyof BookInput>(key: K, value: BookInput[K]) {
     setValues((current) => ({ ...current, [key]: value }));
     setErrors((current) => ({ ...current, [key]: undefined }));
+
+    if (key === "image") {
+      const image = String(value).trim();
+      if (!image) {
+        setImageStatus("empty");
+        setImageError(null);
+      } else if (!HTTP_URL_PATTERN.test(image)) {
+        setImageStatus("invalid");
+        setImageError(SCHEME_ERROR);
+      } else {
+        setImageStatus("loading");
+        setImageError(null);
+      }
+    }
   }
 
   function validate(): FieldErrors {
@@ -85,6 +119,15 @@ export function BookForm({
     }
     if (values.description.length > 1200) {
       next.description = "Keep the description under 1,200 characters.";
+    }
+
+    const image = values.image.trim();
+    if (!image) {
+      next.image = "Add a cover image so readers can spot the book on the shelf.";
+    } else if (!HTTP_URL_PATTERN.test(image)) {
+      next.image = SCHEME_ERROR;
+    } else if (imageStatus !== "valid") {
+      next.image = DIRECT_IMAGE_ERROR;
     }
 
     return next;
@@ -148,6 +191,8 @@ export function BookForm({
   }
 
   const busy = submitting || uploading;
+  const previewSrc = values.image.trim();
+  const previewIsHttp = HTTP_URL_PATTERN.test(previewSrc);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
@@ -155,22 +200,28 @@ export function BookForm({
         <div className="space-y-2">
           <Label htmlFor={`${id}-cover`}>Cover</Label>
           <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl border border-border bg-secondary cover-shadow">
-            {values.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={values.image}
-                alt="Cover preview"
-                className="h-full w-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-center text-muted-foreground">
-                <BookOpenIcon className="size-7" aria-hidden />
-                <span className="text-[0.7rem] leading-relaxed">
-                  A cover helps the book stand out on the shelf.
-                </span>
+            <BookCover
+              key={previewSrc}
+              src={previewIsHttp ? previewSrc : ""}
+              title={values.title.trim() || "Your book"}
+              className="h-full w-full"
+              imageClassName={cn(imageStatus === "loading" && "opacity-70")}
+              titleClassName="text-sm"
+              loading="eager"
+              onLoad={() => {
+                setImageStatus("valid");
+                setImageError(null);
+              }}
+              onError={() => {
+                setImageStatus("invalid");
+                setImageError(DIRECT_IMAGE_ERROR);
+              }}
+            />
+            {previewIsHttp && imageStatus === "loading" ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/35">
+                <Spinner className="size-5 text-accent" />
               </div>
-            )}
+            ) : null}
             {uploading ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-background/75 text-xs font-medium backdrop-blur-sm">
                 <Spinner className="size-5 text-accent" />
@@ -185,6 +236,7 @@ export function BookForm({
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif"
             className="sr-only"
+            disabled={!configured}
             onChange={(event) => void handleFile(event.target.files?.[0])}
           />
           <Button
@@ -192,7 +244,7 @@ export function BookForm({
             variant="outline"
             size="sm"
             className="w-full"
-            disabled={busy}
+            disabled={busy || !configured}
             onClick={() => fileInputRef.current?.click()}
           >
             <UploadCloudIcon aria-hidden />
@@ -312,11 +364,42 @@ export function BookForm({
               value={values.image}
               onChange={(event) => update("image", event.target.value)}
               placeholder="https://i.ibb.co/…"
-              className="h-11 rounded-xl bg-background"
+              aria-invalid={Boolean(imageError || errors.image)}
+              aria-describedby={
+                imageError || errors.image
+                  ? `${id}-image-error`
+                  : `${id}-image-help`
+              }
+              className={cn(
+                "h-11 rounded-xl bg-background",
+                (imageError || errors.image) && "border-destructive",
+              )}
             />
-            <p className="text-[0.65rem] leading-relaxed text-muted-foreground">
-              Paste a hosted image link, or use the upload button on the left.
-            </p>
+            {imageError ? (
+              <p
+                id={`${id}-image-error`}
+                className="text-xs text-destructive"
+                role="alert"
+              >
+                {imageError}
+              </p>
+            ) : errors.image ? (
+              <p
+                id={`${id}-image-error`}
+                className="text-xs text-destructive"
+                role="alert"
+              >
+                {errors.image}
+              </p>
+            ) : (
+              <p
+                id={`${id}-image-help`}
+                className="text-[0.65rem] leading-relaxed text-muted-foreground"
+              >
+                Paste a direct image link. We load a preview to confirm it works
+                before saving.
+              </p>
+            )}
           </div>
         </div>
       </div>

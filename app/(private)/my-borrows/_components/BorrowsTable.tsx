@@ -6,6 +6,7 @@ import { BookOpenIcon, Loader2Icon, RotateCcwIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { DueStamp } from "@/components/shared/due-stamp";
+import { BookCover } from "@/components/shared/book-cover";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { PageLoader } from "@/components/shared/loading";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -31,26 +32,13 @@ function Cover({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-md border border-border bg-secondary",
-        className,
-      )}
-    >
-      {image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={image}
-          alt={`Cover of ${title}`}
-          className="h-full w-full object-cover"
-          referrerPolicy="no-referrer"
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-          <BookOpenIcon className="size-5" aria-hidden />
-        </div>
-      )}
-    </div>
+    <BookCover
+      src={image}
+      title={title}
+      className={cn("rounded-md border border-border", className)}
+      titleClassName="line-clamp-2 text-[0.5rem] leading-tight"
+      iconClassName="size-4"
+    />
   );
 }
 

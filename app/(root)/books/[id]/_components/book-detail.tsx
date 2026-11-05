@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 import { BorrowModal } from "./BorrowModal";
 import { BookCard } from "@/components/shared/BookCard";
+import { BookCover } from "@/components/shared/book-cover";
 import { DueStamp } from "@/components/shared/due-stamp";
 import { ErrorState } from "@/components/shared/empty-state";
 import { PageLoader } from "@/components/shared/loading";
@@ -208,25 +209,16 @@ export function BookDetail({ bookId }: BookDetailProps) {
                 aria-hidden
               />
               <div className={cn("aspect-[3/4] flex-1 overflow-hidden rounded-xl bg-secondary", meta.spineClass)}>
-                {book.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={book.image}
-                    alt={`Cover of ${book.title}`}
-                    className="h-full w-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 bg-[linear-gradient(145deg,var(--secondary),var(--card))] p-6 text-center">
-                    <BookOpenIcon className="size-9 opacity-60" aria-hidden />
-                    <span className="font-heading text-2xl leading-snug text-foreground">
-                      {book.title}
-                    </span>
-                    <span className="text-[0.65rem] font-semibold tracking-[0.22em] uppercase opacity-70">
-                      {meta.label}
-                    </span>
-                  </div>
-                )}
+                <BookCover
+                  src={book.image}
+                  title={book.title}
+                  label={meta.label}
+                  className="h-full w-full"
+                  fallbackClassName={meta.spineClass}
+                  titleClassName="text-2xl"
+                  iconClassName="size-9"
+                  loading="eager"
+                />
               </div>
             </div>
 

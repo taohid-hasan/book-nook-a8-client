@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { BookOpenIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { BookCover } from "@/components/shared/book-cover";
 import { cn, formatDate } from "@/lib/utils";
 import { getCategoryMeta, type Book } from "@/types/book";
 
@@ -28,33 +28,16 @@ export function BookCard({ book, className, actions }: BookCardProps) {
       <div className={cn("spine-strip", meta.spineClass)} aria-hidden />
       <div className="flex min-w-0 flex-1 flex-col p-3.5 sm:p-4">
         <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-secondary cover-shadow">
-          {book.image ? (
-            // Covers may come from imgbb or any user-supplied URL, so a native
-            // image keeps arbitrary hosts working without a domain allowlist.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={book.image}
-              alt={`Cover of ${book.title}`}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-              loading="lazy"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div
-              className={cn(
-                "flex h-full flex-col items-center justify-center gap-3 bg-[linear-gradient(145deg,var(--secondary),var(--card))] p-4 text-center",
-                meta.spineClass,
-              )}
-            >
-              <BookOpenIcon className="size-7 opacity-70" aria-hidden />
-              <span className="line-clamp-4 font-heading text-lg leading-snug text-foreground">
-                {book.title}
-              </span>
-              <span className="text-[0.6rem] font-semibold tracking-[0.2em] uppercase opacity-80">
-                {meta.label}
-              </span>
-            </div>
-          )}
+          <BookCover
+            src={book.image}
+            title={book.title}
+            label={meta.label}
+            className="h-full w-full"
+            imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
+            fallbackClassName={meta.spineClass}
+            titleClassName="line-clamp-4 text-lg leading-snug text-foreground"
+            iconClassName="size-7"
+          />
 
           <span
             className={cn(
