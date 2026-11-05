@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
+import { Spinner } from "@/components/ui/spinner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,7 +84,14 @@ export function DeleteConfirmModal({
             disabled={deleting}
             className="bg-destructive text-white hover:bg-destructive/90"
           >
-            {deleting ? "Deleting…" : "Delete"}
+            {deleting ? (
+              <>
+                <Spinner className="size-4" />
+                Deleting…
+              </>
+            ) : (
+              "Delete"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -227,7 +227,11 @@ export function ProfileView() {
               disabled={signingOut}
               className="border-current/30 bg-transparent text-current hover:border-destructive hover:bg-destructive/10 hover:text-destructive"
             >
-              <LogOutIcon aria-hidden />
+              {signingOut ? (
+                <Spinner className="size-4" />
+              ) : (
+                <LogOutIcon aria-hidden />
+              )}
               {signingOut ? "Signing out…" : "Sign out"}
             </Button>
           </div>

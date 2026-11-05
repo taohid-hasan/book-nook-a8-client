@@ -9,6 +9,7 @@ import { Logo } from "@/components/shared/Logo";
 import type { NavUser } from "@/components/shared/UserMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Sheet,
   SheetContent,
@@ -41,7 +42,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="size-9 md:hidden"
+            className="size-9 lg:hidden"
             aria-label="Open the menu"
           />
         }
@@ -108,6 +109,7 @@ export function MobileNav({ links, user }: MobileNavProps) {
                   render={
                     <Link href="/profile" onClick={() => setOpen(false)} />
                   }
+                  nativeButton={false}
                   variant="outline"
                   className="w-full"
                 >
@@ -120,7 +122,11 @@ export function MobileNav({ links, user }: MobileNavProps) {
                   onClick={() => void signOut()}
                   disabled={signingOut}
                 >
-                  <LogOutIcon aria-hidden />
+                  {signingOut ? (
+                    <Spinner className="size-4" />
+                  ) : (
+                    <LogOutIcon aria-hidden />
+                  )}
                   {signingOut ? "Logging out…" : "Logout"}
                 </Button>
               </div>
@@ -129,12 +135,14 @@ export function MobileNav({ links, user }: MobileNavProps) {
             <div className="flex flex-col gap-2">
               <Button
                 render={<Link href="/register" onClick={() => setOpen(false)} />}
+                nativeButton={false}
                 className="w-full"
               >
                 Register
               </Button>
               <Button
                 render={<Link href="/login" onClick={() => setOpen(false)} />}
+                nativeButton={false}
                 variant="outline"
                 className="w-full"
               >

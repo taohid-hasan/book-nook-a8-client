@@ -20,7 +20,7 @@ export function DueStamp({ date, label = "Due back", className }: DueStampProps)
       title={`${label}: ${formatDate(date)}`}
     >
       <span className="text-[0.55rem] tracking-[0.2em] opacity-80">{label}</span>
-      <span className="font-heading text-sm tracking-normal">
+      <span className="font-heading text-sm tracking-normal" suppressHydrationWarning>
         {formatDate(date)}
       </span>
     </span>

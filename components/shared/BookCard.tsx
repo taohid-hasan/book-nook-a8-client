@@ -90,7 +90,9 @@ export function BookCard({ book, className, actions }: BookCardProps) {
           <div className="mt-auto flex flex-col gap-3 pt-4">
             <div className="flex items-center justify-between gap-2 text-[0.68rem] text-muted-foreground">
               <span className={cn(!available && "text-destructive")}>{shelfLabel}</span>
-              <span className="truncate">{formatDate(book.createdAt)}</span>
+              <span className="truncate" suppressHydrationWarning>
+                {formatDate(book.createdAt)}
+              </span>
             </div>
             <Link
               href={`/books/${book._id}`}

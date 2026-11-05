@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -13,9 +13,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { EMAIL_PATTERN, friendlyAuthError } from "./auth-utils";
+import { EMAIL_PATTERN, friendlyAuthError, safeRedirect } from "./auth-utils";
 import { GoogleButton } from "./GoogleButton";
 import { PasswordInput } from "./PasswordInput";
+import { PageLoader } from "@/components/shared/loading";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,8 +47,14 @@ const passwordChecks = [
   },
 ];
 
-export function RegisterForm() {
+interface RegisterFormProps {
+  redirect?: string;
+}
+
+export function RegisterForm({ redirect }: RegisterFormProps) {
   const router = useRouter();
+  const redirectTo = safeRedirect(redirect);
+  const { data: session, isPending } = authClient.useSession();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
@@ -56,6 +63,12 @@ export function RegisterForm() {
   const [submitting, setSubmitting] = useState(false);
 
   const passwordValid = isValidPassword(password);
+
+  useEffect(() => {
+    if (!isPending && session) {
+      router.replace(redirectTo);
+    }
+  }, [isPending, session, redirectTo, router]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,7 +113,20 @@ export function RegisterForm() {
     toast.success("Your library card is ready", {
       description: "Welcome to BookNook. Sign in to start borrowing.",
     });
-    router.push("/login");
+    router.push(
+      redirectTo === "/"
+        ? "/login"
+        : `/login?redirect=${encodeURIComponent(redirectTo)}`,
+    );
+    router.refresh();
+  }
+
+  if (isPending) {
+    return <PageLoader label="Checking your library card…" />;
+  }
+
+  if (session) {
+    return <PageLoader label="Taking you back to the shelves…" />;
   }
 
   return (
@@ -266,12 +292,16 @@ export function RegisterForm() {
         <span className="h-px flex-1 bg-border" aria-hidden />
       </div>
 
-      <GoogleButton callbackURL="/" />
+      <GoogleButton callbackURL={redirectTo} />
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have a library card?{" "}
         <Link
-          href="/login"
+          href={
+            redirectTo === "/"
+              ? "/login"
+              : `/login?redirect=${encodeURIComponent(redirectTo)}`
+          }
           className="font-semibold text-accent underline-offset-4 hover:underline"
         >
           Login

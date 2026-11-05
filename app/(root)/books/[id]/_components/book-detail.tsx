@@ -24,6 +24,7 @@ import { DueStamp } from "@/components/shared/due-stamp";
 import { ErrorState } from "@/components/shared/empty-state";
 import { PageLoader } from "@/components/shared/loading";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -277,6 +278,7 @@ export function BookDetail({ bookId }: BookDetailProps) {
                 <>
                   <Button
                     render={<Link href="/my-borrows" />}
+                    nativeButton={false}
                     className="w-full"
                   >
                     <CheckCircle2Icon aria-hidden />
@@ -480,7 +482,14 @@ export function BookDetail({ bookId }: BookDetailProps) {
               disabled={deleteBusy}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              {deleteBusy ? "Removing…" : "Remove book"}
+              {deleteBusy ? (
+                <>
+                  <Spinner className="size-4" />
+                  Removing…
+                </>
+              ) : (
+                "Remove book"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

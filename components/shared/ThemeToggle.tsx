@@ -21,6 +21,7 @@ export function ThemeToggle() {
       aria-label={isDark ? "Switch to the daylight theme" : "Switch to the lamp-lit theme"}
       title={isDark ? "Daylight theme" : "Lamp-lit theme"}
       className="size-9"
+      suppressHydrationWarning
     >
       {isDark ? (
         <SunIcon className="size-[1.1rem]" aria-hidden />

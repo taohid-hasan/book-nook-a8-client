@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ChevronDownIcon, LogOutIcon, UserRoundIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Spinner } from "@/components/ui/spinner";
 import { useSignOut } from "@/hooks/use-sign-out";
 import { cn, initials } from "@/lib/utils";
 
@@ -105,7 +106,11 @@ export function UserMenu({ user }: { user: NavUser }) {
               disabled={signingOut}
               className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-60"
             >
-              <LogOutIcon className="size-4" aria-hidden />
+              {signingOut ? (
+                <Spinner className="size-4" />
+              ) : (
+                <LogOutIcon className="size-4" aria-hidden />
+              )}
               {signingOut ? "Logging out…" : "Logout"}
             </button>
           </div>

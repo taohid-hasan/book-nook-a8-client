@@ -136,7 +136,7 @@ export function BorrowsTable() {
         </Link>
       </div>
 
-      <div className="hidden overflow-hidden rounded-2xl border border-border/80 bg-card md:block">
+      <div className="hidden overflow-hidden rounded-2xl border border-border/80 bg-card lg:block">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
@@ -202,7 +202,7 @@ export function BorrowsTable() {
         </Table>
       </div>
 
-      <div className="grid gap-4 md:hidden">
+      <div className="grid gap-4 lg:hidden">
         {borrows.map((borrow) => {
           const overdue = isOverdue(borrow.returnDate);
           const isReturning = returningId === borrow._id;

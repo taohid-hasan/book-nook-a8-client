@@ -40,7 +40,7 @@ export function Navbar() {
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Logo />
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
           {links.map((link) => {
             const active = isActivePath(pathname, link.href);
             return (
@@ -80,6 +80,7 @@ export function Navbar() {
             <>
               <Button
                 render={<Link href="/login" />}
+                nativeButton={false}
                 variant="outline"
                 size="sm"
                 className="hidden sm:inline-flex"
@@ -88,6 +89,7 @@ export function Navbar() {
               </Button>
               <Button
                 render={<Link href="/register" />}
+                nativeButton={false}
                 size="sm"
                 className="hidden sm:inline-flex"
               >

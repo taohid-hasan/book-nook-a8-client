@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { EMAIL_PATTERN, friendlyAuthError, safeRedirect } from "./auth-utils";
 import { GoogleButton } from "./GoogleButton";
 import { PasswordInput } from "./PasswordInput";
+import { PageLoader } from "@/components/shared/loading";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +81,14 @@ export function LoginForm({ redirect }: LoginFormProps) {
     });
     router.push(redirectTo);
     router.refresh();
+  }
+
+  if (isPending) {
+    return <PageLoader label="Checking your library card…" />;
+  }
+
+  if (session) {
+    return <PageLoader label="Taking you back to the shelves…" />;
   }
 
   return (

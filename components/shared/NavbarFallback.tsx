@@ -9,7 +9,7 @@ export function NavbarFallback() {
     <header className="border-b border-border/70 bg-background/85">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Logo />
-        <div className="hidden items-center gap-4 md:flex" aria-hidden>
+        <div className="hidden items-center gap-4 lg:flex" aria-hidden>
           <span className="h-4 w-12 rounded-full bg-muted" />
           <span className="h-4 w-16 rounded-full bg-muted" />
           <span className="h-4 w-20 rounded-full bg-muted" />

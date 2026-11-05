@@ -13,9 +13,12 @@ export const metadata: Metadata = {
   description: "Every book you have added to the BookNook shelves.",
 };
 
+/** Auth-gated page: its shell waits on the session, so navigation may block. */
+export const instant = false;
+
 export default function MyBooksPage() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <PageTitle title="My Books" />
       <PrivatePageHeader
         eyebrow="Your shelf"

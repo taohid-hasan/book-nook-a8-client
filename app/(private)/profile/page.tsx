@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   description: "Your BookNook library card, reading activity, and account settings.",
 };
 
+/** Auth-gated page: its shell waits on the session, so navigation may block. */
+export const instant = false;
+
 export default function ProfilePage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">

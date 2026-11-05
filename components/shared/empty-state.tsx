@@ -39,7 +39,9 @@ export function EmptyState({
         </p>
       </div>
       {actionHref && actionLabel ? (
-        <Button render={<Link href={actionHref} />}>{actionLabel}</Button>
+        <Button render={<Link href={actionHref} />} nativeButton={false}>
+          {actionLabel}
+        </Button>
       ) : null}
       {!actionHref && actionLabel && onAction ? (
         <Button onClick={onAction}>{actionLabel}</Button>

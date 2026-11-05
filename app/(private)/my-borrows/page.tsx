@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   description: "The books currently checked out to your BookNook library card.",
 };
 
+/** Auth-gated page: its shell waits on the session, so navigation may block. */
+export const instant = false;
+
 export default function MyBorrowsPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">

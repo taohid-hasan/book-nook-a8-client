@@ -94,7 +94,7 @@ export function MyBooksView() {
         </Link>
       </div>
 
-      <div className="hidden overflow-hidden rounded-2xl border border-border/80 bg-card md:block">
+      <div className="hidden overflow-hidden rounded-2xl border border-border/80 bg-card lg:block">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
@@ -191,7 +191,7 @@ export function MyBooksView() {
         </Table>
       </div>
 
-      <div className="grid gap-4 md:hidden">
+      <div className="grid gap-4 lg:hidden">
         {books.map((book) => {
           const meta = getCategoryMeta(book.category);
 

@@ -9,6 +9,9 @@ export const metadata: Metadata = {
     "Add a book to the shared BookNook shelf with a cover, description, and copy count.",
 };
 
+/** Auth-gated page: its shell waits on the session, so navigation may block. */
+export const instant = false;
+
 export default function AddBookPage() {
   return (
     <>
