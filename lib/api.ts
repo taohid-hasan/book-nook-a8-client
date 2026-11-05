@@ -2,10 +2,6 @@ import { authClient } from "@/lib/auth-client";
 import type { Book, BookInput } from "@/types/book";
 import type { Borrow } from "@/types/borrow";
 
-export const API_URL = (
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"
-).replace(/\/$/, "");
-
 export class ApiError extends Error {
   status: number;
 
@@ -19,6 +15,7 @@ export class ApiError extends Error {
 interface ApiEnvelope<T> {
   success: boolean;
   message?: string;
+  error?: string;
   count?: number;
   data: T;
 }
@@ -30,10 +27,33 @@ interface RequestOptions {
   signal?: AbortSignal;
 }
 
-async function getBearerToken(): Promise<string | null> {
-  const { data, error } = await authClient.token();
-  if (error) return null;
-  return data?.token ?? null;
+function logApiError(context: string, error: unknown) {
+  if (process.env.NODE_ENV === "development") {
+    console.error(`[api] ${context}`, error);
+  }
+}
+
+function getApiUrl(): string {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not set");
+  }
+  return baseUrl;
+}
+
+async function getBearerToken(): Promise<string> {
+  try {
+    const { data, error } = await authClient.token();
+    if (error || !data?.token) {
+      logApiError("authClient.token() returned no token", error ?? data);
+      throw new ApiError("Your session has expired. Please log in again.", 401);
+    }
+    return data.token;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    logApiError("authClient.token() threw", error);
+    throw new ApiError("Your session has expired. Please log in again.", 401);
+  }
 }
 
 /**
@@ -44,6 +64,7 @@ export async function apiFetch<T>(
   path: string,
   { method = "GET", body, auth = true, signal }: RequestOptions = {},
 ): Promise<T> {
+  const apiUrl = getApiUrl();
   const headers: Record<string, string> = {
     Accept: "application/json",
   };
@@ -54,18 +75,12 @@ export async function apiFetch<T>(
 
   if (auth) {
     const token = await getBearerToken();
-    if (!token) {
-      throw new ApiError(
-        "Your session has expired. Please sign in again.",
-        401,
-      );
-    }
     headers.Authorization = `Bearer ${token}`;
   }
 
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, {
+    response = await fetch(`${apiUrl}${path}`, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -76,27 +91,32 @@ export async function apiFetch<T>(
     if (error instanceof DOMException && error.name === "AbortError") {
       throw error;
     }
-    throw new ApiError(
-      "Could not reach the library service. Make sure the BookNook API is running and try again.",
-      0,
-    );
-  }
-
-  const payload = (await response.json().catch(() => null)) as
-    | (ApiEnvelope<T> & { success?: boolean })
-    | null;
-
-  if (!response.ok) {
-    if (response.status === 401) {
+    if (error instanceof TypeError) {
+      logApiError(`network failure for ${method} ${apiUrl}${path}`, error);
       throw new ApiError(
-        payload?.message ?? "Your session is no longer valid. Please sign in again.",
-        401,
+        "Could not reach the library service. Make sure the BookNook API is running and try again.",
+        0,
       );
     }
-    throw new ApiError(
-      payload?.message ?? "The library service returned an unexpected response.",
-      response.status,
+    logApiError(`unexpected fetch failure for ${method} ${apiUrl}${path}`, error);
+    throw error;
+  }
+
+  const payload = (await response.json().catch((error) => {
+    logApiError(`could not parse JSON from ${method} ${path}`, error);
+    return null;
+  })) as (ApiEnvelope<T> & { success?: boolean }) | null;
+
+  if (!response.ok) {
+    const message =
+      payload?.message ??
+      payload?.error ??
+      `The library service returned an unexpected response (${response.status}).`;
+    logApiError(
+      `${method} ${path} failed with status ${response.status}`,
+      message,
     );
+    throw new ApiError(message, response.status);
   }
 
   return payload as T;

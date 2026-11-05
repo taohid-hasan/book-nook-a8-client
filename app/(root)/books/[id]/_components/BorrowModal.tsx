@@ -13,7 +13,7 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ApiError, borrowBook } from "@/lib/api";
+import { borrowBook } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import type { Book } from "@/types/book";
 import type { Borrow } from "@/types/borrow";
@@ -54,22 +54,16 @@ export function BorrowModal({
       onBorrowed(borrow);
       onOpenChange(false);
     } catch (err) {
-      const status = err instanceof ApiError ? err.status : undefined;
+      if (process.env.NODE_ENV === "development") {
+        console.error("[borrow] borrow failed", err);
+      }
       const message =
-        status === 409
-          ? "You have already borrowed this book"
-          : status === 400
-            ? "Not Available"
-            : err instanceof Error
-              ? err.message
-              : "The book could not be borrowed right now.";
+        err instanceof Error
+          ? err.message
+          : "The book could not be borrowed right now.";
 
       setError(message);
-      if (status === 409 || status === 400) {
-        toast.error(message);
-      } else {
-        toast.error("Borrowing didn't go through", { description: message });
-      }
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

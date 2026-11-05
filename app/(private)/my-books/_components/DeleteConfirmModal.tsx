@@ -44,10 +44,12 @@ export function DeleteConfirmModal({
       onDeleted(book._id);
       onOpenChange(false);
     } catch (err) {
-      toast.error("The book couldn't be removed", {
-        description:
-          err instanceof Error ? err.message : "Please try again in a moment.",
-      });
+      if (process.env.NODE_ENV === "development") {
+        console.error("[my-books] delete failed", err);
+      }
+      toast.error(
+        err instanceof Error ? err.message : "Please try again in a moment.",
+      );
     } finally {
       setDeleting(false);
     }

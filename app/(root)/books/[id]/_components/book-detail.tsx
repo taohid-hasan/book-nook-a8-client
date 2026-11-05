@@ -146,10 +146,12 @@ export function BookDetail({ bookId }: BookDetailProps) {
       router.push("/my-books");
       router.refresh();
     } catch (err) {
-      toast.error("The book couldn't be removed", {
-        description:
-          err instanceof Error ? err.message : "Please try again in a moment.",
-      });
+      if (process.env.NODE_ENV === "development") {
+        console.error("[book-detail] delete failed", err);
+      }
+      toast.error(
+        err instanceof Error ? err.message : "Please try again in a moment.",
+      );
       setDeleteBusy(false);
     }
   }

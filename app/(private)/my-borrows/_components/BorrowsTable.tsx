@@ -78,10 +78,12 @@ export function BorrowsTable() {
         description: `"${borrow.bookTitle}" is back on the shelf for the next reader.`,
       });
     } catch (err) {
-      toast.error("The book couldn't be returned", {
-        description:
-          err instanceof Error ? err.message : "Please try again in a moment.",
-      });
+      if (process.env.NODE_ENV === "development") {
+        console.error("[my-borrows] return failed", err);
+      }
+      toast.error(
+        err instanceof Error ? err.message : "Please try again in a moment.",
+      );
     } finally {
       setReturningId(null);
     }

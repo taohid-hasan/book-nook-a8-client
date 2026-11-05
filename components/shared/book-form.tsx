@@ -55,6 +55,12 @@ const emptyValues: BookInput = {
   totalCopies: 1,
 };
 
+function logFormError(error: unknown) {
+  if (process.env.NODE_ENV === "development") {
+    console.error("[book-form] save failed", error);
+  }
+}
+
 export function BookForm({
   initialValues,
   submitLabel,
@@ -179,12 +185,12 @@ export function BookForm({
         totalCopies: Number(values.totalCopies),
       });
     } catch (error) {
-      toast.error("The book couldn't be saved", {
-        description:
-          error instanceof Error
-            ? error.message
-            : "The library service is not responding. Try again in a moment.",
-      });
+      const message =
+        error instanceof Error
+          ? error.message
+          : "The book couldn't be saved. Try again in a moment.";
+      logFormError(error);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
